@@ -1,0 +1,45 @@
+from agent_runtime.context.builder import build_context
+
+
+class AgentLoop:
+    def __init__(self, task, model, tools, max_steps=10):
+        self.task = task
+        self.model = model
+        self.tools = tools
+        self.max_steps = max_steps
+
+    def run(self, state):
+        for _ in range(self.max_steps):
+            prompt = build_context(self.task, state)
+
+            action = self.model.generate_action(prompt)
+
+            if not isinstance(action, dict):
+                raise ValueError("Model must return a JSON object.")
+
+            action_name = action.get("action")
+
+            if not action_name:
+                raise ValueError("Model response has no action.")
+
+            if not self.task.can_do(action_name):
+                raise PermissionError(
+                    f"Action '{action_name}' is not allowed for this task."
+                )
+
+            if action_name == "finish":
+                answer = action.get("answer")
+
+                if answer is None:
+                    raise ValueError("finish action requires an answer.")
+
+                state.record("finish", str(answer))
+                self.task.finish()
+                return str(answer)
+
+            tool_name = f"browser.{action_name.replace('find_text', 'find')}"
+
+            kwargs = {
+                key: value
+                for key, value in action.items()
+                if key != "action"
