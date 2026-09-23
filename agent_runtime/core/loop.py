@@ -57,6 +57,9 @@ class AgentLoop:
                 **kwargs,
             )
 
+            if action_name == "navigate":
+                state.current_url = action.get("url")
+
             state.record(
                 action_name,
                 str(result),

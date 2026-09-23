@@ -15,6 +15,9 @@ TOOL_POLICY = {
 
     "browser.search": TrustLevel.BLOCK,
 
+    "api.vehicle": TrustLevel.ALLOW,
+    "api.challan": TrustLevel.ALLOW,
+
     "filesystem.read": TrustLevel.ALLOW,
     "filesystem.write": TrustLevel.CONFIRM,
 

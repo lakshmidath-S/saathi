@@ -7,6 +7,7 @@ class AgentState:
     task: Task
     history: list[dict] = field(default_factory=list)
     last_result: str | None = None
+    current_url: str | None = None
 
     def record(self, action: str, result: str):
         self.history.append({
